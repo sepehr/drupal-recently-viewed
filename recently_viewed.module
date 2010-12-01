@@ -19,6 +19,14 @@ function recently_viewed_menu() {
 
 
 /**
+ * Implements hook_block().
+ */
+function recently_viewed_block() {
+
+}
+
+
+/**
  * Implements hook_exit().
  */
 function recently_viewed_exit(destination = NULL) {
