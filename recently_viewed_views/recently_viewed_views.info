@@ -1,0 +1,7 @@
+; $Id$
+name = "Recently Viewed Items Views Integration"
+description = "Provides a customised default View for "Recently Viewed Items", so you can benefit the endless flexibility."
+core = 6.x
+package = Other
+dependencies[] = views
+dependencies[] = recently_viewed
