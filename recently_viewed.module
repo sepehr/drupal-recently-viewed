@@ -7,48 +7,225 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function recently_viewed_menu() {
-  $items = array();
-
-  
-
-  return $items;
-}
-
-
-/**
  * Implements hook_block().
  */
-function recently_viewed_block() {
+function recently_viewed_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks = array();
+      $blocks[0]['info'] = t('Recently Viewed Items');
+      $blocks[0]['cache'] = BLOCK_NO_CACHE;
+      return $blocks;
 
+    case 'configure':
+      return _recently_viewed_settings();
+
+    case 'save':
+      $edit['recently_viewed_trim'] = ctype_digit($edit['recently_viewed_trim']) ? $edit['recently_viewed_trim'] : 0;
+      $edit['recently_viewed_limit'] = ctype_digit($edit['recently_viewed_limit']) ? $edit['recently_viewed_limit'] : 10;      
+
+      unset($edit['recently_viewed_types']['-none-']);
+      variable_set('recently_viewed_configs', array(
+        'trim' => $edit['recently_viewed_trim'],
+        'limit' => $edit['recently_viewed_limit'],
+        'empty' => $edit['recently_viewed_empty'],
+        'wordsafe' => $edit['recently_viewed_wordsafe'],
+        'ellipsis' => $edit['recently_viewed_ellipsis'],
+        'types' => $edit['recently_viewed_types'],
+      ));
+      break;
+
+    case 'view':
+      $block = array();
+      $nodes = recently_viewed_get();
+      $configs = variable_get('recently_viewed_configs', array(
+        'limit' => 10,
+        'trim' => 0,
+        'ellipsis' => FALSE,
+        'wordsafe' => FALSE,
+        'empty' => t('No items yet, surf around!'),
+        'types' => array(),
+      ));
+
+      foreach ($nodes as $delta => $node) {
+        // Restrict types.
+        if (in_array($node->type, $configs['types'])) {
+          unset($nodes[$delta]);
+          continue;
+        }
+
+        // Truncate titles.
+        if ($configs['trim']) {
+          $node->title = truncate_utf8($node->title, $configs['trim'], (bool) $configs['wordsafe'], (bool) $configs['ellipsis']);
+        }
+
+        // Make the link.
+        $nodes[$delta] = l($node->title, 'node/' . $node->nid);
+      }
+
+      $block['subject'] = t('Recently viewed items');
+      $block['content'] = count($nodes) ? theme('item_list', $nodes) : $configs['empty'];
+
+      return $block;
+  }
 }
 
 
 /**
  * Implements hook_exit().
  */
-function recently_viewed_exit(destination = NULL) {
+function recently_viewed_exit($destination = NULL) {
+  $args = arg();
+  if ($args[0] != 'node' || !is_numeric($args[1])) {
+    return;
+  }
 
+  _recently_viewed_track($args[1]);
 }
 
 
 /**
- * API function to get current user recently viewed items.
+ * API function to get current user's recently viewed items.
+ *
+ * @param $type
+ *   Indicated which properties of a node to be returned.
+ *   - all
+ *   - link
+ *   - title
  *
  * @return
  *   An array of recently viewed items.
  */
-function _recently_viewed_track() {
+function recently_viewed_get($type = 'all') {
+  if (!is_array($_SESSION['recently_viewed'])) {
+    return;
+  }
 
+  $nodes = array();
+  foreach ($_SESSION['recently_viewed'] as $nid) {
+    $node = node_load((int) $nid);
+    switch ($type) {
+      case 'link':
+        $nodes[] = l($node->title, 'node/' . $node->nid);
+        break;
+
+      case 'title':
+        $nodes[] = $node->title;
+        break;
+
+      default:
+        $nodes[] = $node;
+    }
+  }
+
+  return $nodes;
 }
 
 
 /**
  * Helper function to track a visit.
+ *
+ * @param $nid
+ *   The node identifier to be tracked as recently viewed.
  */
-function _recently_viewed_track() {
+function _recently_viewed_track($nid) {
+  $node = node_load($nid);
+  if (!is_object($node)) {
+    return;  
+  }
 
+  // The node is being reviewed.
+  if (is_array($_SESSION['recently_viewed']) && in_array($node->nid, $_SESSION['recently_viewed'])) {
+    $_SESSION['recently_viewed'] = array_diff($_SESSION['recently_viewed'], array($node->nid));
+  }
+
+  $_SESSION['recently_viewed'][] = $node->nid;
+  if (count($_SESSION['recently_viewed']) > (int) variable_get('recently_viewed_limit', 10)) {
+    array_shift($_SESSION['recently_viewed']);
+  }
+}
+
+
+/**
+ * Helper function to return the block settings form.
+ *
+ * @return An array of form elements.
+ * @ingroup forms
+ */
+function _recently_viewed_settings() {
+  $form = array();
+  $configs = variable_get('recently_viewed_configs', array(
+    'limit' => 10,
+    'trim' => 0,
+    'ellipsis' => FALSE,
+    'wordsafe' => FALSE,
+    'empty' => t('No items yet, surf around!'),
+    'types' => array(),
+  ));
+
+  $form['recently_viewed_empty'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Empty text'),
+    '#description' => t('Text to show when there are no viewed items for the user.'),
+    '#default_value' => $configs['empty'],
+  );
+
+  $form['recently_viewed_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Track Limit'),
+    '#description' => t('Maximum number of items to track for a user.'),
+    '#default_value' => $configs['limit'],
+  );
+
+  $form['content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Restrict Content Types'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $types = node_get_types();
+  foreach ($types as $key => $type) {
+    $types[$key] = $type->name;
+  }
+  
+  $form['content_types']['recently_viewed_types'] = array(
+    '#type' => 'select',
+    '#multiple' => TRUE,
+    '#title' => t('Choose which content types you want to exclude'),
+    '#default_value' => $configs['types'],
+    '#options' => array('-none-' => '-None-') + $types,
+  );
+  unset($types);
+
+  $form['truncation'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Title Truncation'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['truncation']['recently_viewed_trim'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum length'),
+    '#description' => t('Maximum length of a viewed item title. Set to zero to ignore.'),
+    '#default_value' => $configs['trim'],
+  );
+
+  $form['truncation']['recently_viewed_wordsafe'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Trim only on a word boundary.'),
+    '#default_value' => $configs['wordsafe'],
+    '#return_value' => 1,
+  );
+
+  $form['truncation']['recently_viewed_ellipsis'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add an ellipsis at the end of truncated string.'),
+    '#default_value' => $configs['ellipsis'],
+    '#return_value' => 1,
+  );
+  
+  return $form;
 }
 
