@@ -98,7 +98,7 @@ function recently_viewed_exit($destination = NULL) {
  */
 function recently_viewed_get($type = 'all') {
   if (!is_array($_SESSION['recently_viewed'])) {
-    return;
+    return array();
   }
 
   $nodes = array();
@@ -131,7 +131,7 @@ function recently_viewed_get($type = 'all') {
 function _recently_viewed_track($nid) {
   $node = node_load($nid);
   if (!is_object($node)) {
-    return;  
+    return;
   }
 
   // The node is being reviewed.
