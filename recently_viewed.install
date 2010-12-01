@@ -10,7 +10,7 @@
  * Implements hook_install().
  */
 function recently_viewed_install() {
-  drupal_set_message(st('You might want to <a href="!add">add</a> a "Recently Viewed Items" block and <a href="!config">configure</a> its behavior.',
+  drupal_set_message(st('You might want to <a href="!add">add</a> a <em>Recently Viewed Items</em> block and <a href="!config">configure</a> its behavior.',
     array(
       '!add' => url('admin/build/block'),
       '!config' => url('admin/build/block/configure/recently_viewed')
