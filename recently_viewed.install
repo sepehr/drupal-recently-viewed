@@ -1,0 +1,22 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Contains un/installation hooks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function recently_viewed_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function recently_viewed_uninstall() {
+
+}
+

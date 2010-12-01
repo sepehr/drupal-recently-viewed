@@ -1,0 +1,46 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Contains required hooks and API functions.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function recently_viewed_menu() {
+  $items = array();
+
+  
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_exit().
+ */
+function recently_viewed_exit(destination = NULL) {
+
+}
+
+
+/**
+ * API function to get current user recently viewed items.
+ *
+ * @return
+ *   An array of recently viewed items.
+ */
+function _recently_viewed_track() {
+
+}
+
+
+/**
+ * Helper function to track a visit.
+ */
+function _recently_viewed_track() {
+
+}
+
