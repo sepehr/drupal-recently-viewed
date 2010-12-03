@@ -323,7 +323,7 @@ function recently_viewed_products_views_default_views() {
   ));
 
   $handler->override_option('title', 'Recently Viewed Products');
-  $handler->override_option('empty', 'No peoducts yet, surf around!');
+  $handler->override_option('empty', 'No products yet, surf around!');
   $handler->override_option('empty_format', '1');
   $handler->override_option('style_plugin', 'list');
   $handler->override_option('style_options', array(
