@@ -1,0 +1,18 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Contains required hooks.
+ */
+
+/**
+ * Implements hook_views().
+ */
+function recently_viewed_products_views_api() {
+  return array(
+    'api' => '2.0',
+    'path' => drupal_get_path('module', 'recently_viewed_products') . '/views',
+  );
+}
+

@@ -1,0 +1,9 @@
+; $Id$
+name = "Recently Viewed Products View"
+description = "Provides a default 'Recently Viewed Items' view for Ubercart products."
+core = 6.x
+package = "Ubercart - extra"
+dependencies[] = views
+dependencies[] = uc_product
+dependencies[] = views_argsort
+dependencies[] = recently_viewed
