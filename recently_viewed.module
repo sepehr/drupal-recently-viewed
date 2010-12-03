@@ -44,7 +44,7 @@ function recently_viewed_block($op = 'list', $delta = 0, $edit = array()) {
         'ellipsis' => FALSE,
         'wordsafe' => FALSE,
         'empty' => t('No items yet, surf around!'),
-        'types' => array(),
+        'types' => array('-none-'),
       ));
 
       foreach ($nodes as $delta => $node) {
@@ -168,7 +168,7 @@ function _recently_viewed_settings() {
     'ellipsis' => FALSE,
     'wordsafe' => FALSE,
     'empty' => t('No items yet, surf around!'),
-    'types' => array(),
+    'types' => array('-none-'),
   ));
 
   $form['recently_viewed_empty'] = array(
