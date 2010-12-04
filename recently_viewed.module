@@ -85,6 +85,30 @@ function recently_viewed_exit($destination = NULL) {
 
 
 /**
+ * Implements hook_help().
+ */
+function recently_viewed_help($path, $arg) {
+  $explanation = '<p>' . t('The <em>Recently Viewed Items</em> module tracks recently viewed nodes for both anonymous and authenticated users.<br />
+  It provides an API function for other modules to get a list of recently viewed items and also defines a configurable <a href="!recently_viewed_items">recently viewed items block</a>.<br />
+  You might want to make use of the recently_viewed_views submodule which provides a customised default View to benefit the endless flexibility of Views.<br />
+  Also if the Ubercart module suite is enabled, there is another useful submodule called recently_viewed_products which adds an another default view for ubercart specific products with the same functionality.',
+    array('!recently_viewed_items' => url('admin/build/block/configure/recently_viewed')
+  )) . '</p><p><strong>' . t("Please notice that since the module initiates sessions, it's incompatible with Varnish Cache for now.") . '</strong></p>';
+
+  $admin_pages = array(
+    l(t('Configure "recently viewed items" block'), 'admin/build/block/configure/recently_viewed'),
+    l(t('Configure "recently viewed items" view - requires recently_viewed_views module'), 'admin/build/views/edit/recently_viewed_items'),
+    l(t('Configure "recently vietwed products" view - requires recently_viewed_products module'), 'admin/build/views/edit/recently_viewed_products'),
+  );
+
+  switch ($path) {
+    case 'admin/help#recently_viewed':
+      return $explanation . theme('item_list', $admin_pages, t('Recently Viewed Items administration pages'));
+  }
+}
+
+
+/**
  * API function to get current user's recently viewed items.
  *
  * @param $type
