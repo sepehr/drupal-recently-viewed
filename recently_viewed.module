@@ -168,12 +168,12 @@ function _recently_viewed_track($nid) {
     $_SESSION['recently_viewed'] = array_diff($_SESSION['recently_viewed'], array($node->nid));
   }
 
-  // Add the new item.
+  // Add the new item at the front.
   array_unshift($_SESSION['recently_viewed'], $node->nid);
 
-  // Shift out extra items.
+  // Drop the extra item.
   if (count($_SESSION['recently_viewed']) > variable_get('recently_viewed_limit', 10)) {
-    array_shift($_SESSION['recently_viewed']);
+    array_pop($_SESSION['recently_viewed']);
   }
 }
 
