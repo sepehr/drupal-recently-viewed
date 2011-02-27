@@ -1,4 +1,3 @@
-; $Id$
 name = "Recently Viewed Products View"
 description = "Provides a default 'Recently Viewed Items' view for Ubercart products."
 core = 6.x
