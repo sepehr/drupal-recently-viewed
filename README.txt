@@ -1,5 +1,3 @@
-// $Id$
-
 Description
 ===========
 The module tracks recently viewed nodes for both anonymous and authenticated users.
@@ -14,7 +12,7 @@ Since the module initiates sessions, it's incompatible with Varnish Cache for no
 In future releases there might be an option to work with cookies instead of sessions to make it compatible with Varnish.
 
 
-Recommended Modules 
+Recommended Modules
 ===================
 Here is a list of recommended modules to be used with "Recently viewed Views integration" and "Recently viewed products" submodules:
 
