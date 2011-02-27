@@ -1,4 +1,3 @@
-; $Id$
 name = "Recently Viewed Items"
 description = "Tracks recently viewed nodes for both anonymous and authenticated users. Also provides a block."
 core = 6.x
